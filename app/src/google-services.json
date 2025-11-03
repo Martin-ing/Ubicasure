@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "402661808663",
+    "project_id": "ubicasure-470604",
+    "storage_bucket": "ubicasure-470604.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402661808663:android:3a4336296401927ccd9a52",
+        "android_client_info": {
+          "package_name": "com.example.ubicasure"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCewv3_zFuEsbz7-Mhb7yoXeAdlHxYvd9Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

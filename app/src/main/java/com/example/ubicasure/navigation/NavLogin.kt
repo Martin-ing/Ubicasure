@@ -8,11 +8,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import com.example.ubicasure.screens.Login.ForgotPasswordScreen
 
 @Composable
-fun NavGraph(viewModel: LoginViewModel, onLoginSuccess: () -> Unit) {
-    val navController = rememberNavController()
+fun NavGraph(viewModel: LoginViewModel, navController: NavHostController, onLoginSuccess: () -> Unit) {
 
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {

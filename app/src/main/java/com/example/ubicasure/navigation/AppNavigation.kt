@@ -6,37 +6,65 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.ubicasure.screens.Login.LoginScreen
+import com.example.ubicasure.screens.Login.RegisterScreen
+import com.example.ubicasure.screens.Login.ForgotPasswordScreen
+import com.example.ubicasure.screens.Login.LoginViewModel
 import com.example.ubicasure.screens.MapScreen
 import com.example.ubicasure.screens.ChatScreen
 import com.example.ubicasure.screens.MessagesScreen
-
-sealed class Screen(val route: String) {
-    object Map : Screen("map")
-    object Chat : Screen("chat")
-    object Messages : Screen("messages/{chatId}/{usuario}")
-}
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     usuario: String,
+    viewModel: LoginViewModel,
     signOut: () -> Unit
 ) {
+    val startDestination = if (usuario == "sin usuario") "login" else "map"
+
     NavHost(
         navController = navController,
-        startDestination = Screen.Map.route
+        startDestination = startDestination
     ) {
-        composable(Screen.Map.route) {
-            MapScreen(navController, usuario)
+
+        // ======== LOGIN FLOW ========
+        composable("login") {
+            LoginScreen(
+                viewModel,
+                onLoginSuccess = {
+                    // Cuando se loguea correctamente, vamos al mapa
+                    navController.navigate("map") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                },
+                onNavigateToRegister = {
+                    navController.navigate("register")
+                },
+                onNavigateToForgotPassword = {
+                    navController.navigate("forgotPassword")
+                }
+            )
         }
 
+        composable("register") {
+            RegisterScreen(navController = navController)
+        }
 
-        composable(Screen.Chat.route) {
+        composable("forgotPassword") {
+            ForgotPasswordScreen(navController = navController)
+        }
+
+        composable("map") {
+            MapScreen(navController, usuario, signOut)
+        }
+
+        composable("chat") {
             ChatScreen(navController, usuario)
         }
 
         composable(
-            route = Screen.Messages.route,
+            "messages/{chatId}/{usuario}",
             arguments = listOf(
                 navArgument("chatId") { type = NavType.StringType },
                 navArgument("usuario") { type = NavType.StringType }

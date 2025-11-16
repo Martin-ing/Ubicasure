@@ -31,23 +31,15 @@ class MainActivity : ComponentActivity() {
             UbicasureTheme {
                 val usuarioViewModel: LoginViewModel = viewModel()
                 val usuario by usuarioViewModel.usuario.collectAsState()
+                val navController = rememberNavController()
 
-                if (usuario == "sin usuario") {
-                    NavGraph(
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    AppNavigation(
+                        navController = navController,
+                        usuario = usuario,
                         viewModel = usuarioViewModel,
-                        onLoginSuccess = { }
+                        signOut = usuarioViewModel::signOut
                     )
-                } else {
-                    val navController = rememberNavController()
-                    Surface(color = MaterialTheme.colorScheme.background) {
-                        Box(modifier = Modifier.padding()) {
-                            AppNavigation(
-                                navController = navController,
-                                usuario = usuario,
-                                signOut = usuarioViewModel::signOut
-                            )
-                        }
-                    }
                 }
             }
         }

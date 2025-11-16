@@ -91,7 +91,7 @@ class MapViewModel : ViewModel() {
     fun sendPanicAlert(uid: String, lat: Double, lon: Double) {
         val json = """
             {
-                "uid": "$uid",
+                "email": "$uid",
                 "latitude": $lat,
                 "longitude": $lon
             }

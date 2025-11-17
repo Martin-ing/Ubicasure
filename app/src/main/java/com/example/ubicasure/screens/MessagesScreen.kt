@@ -186,6 +186,7 @@ fun MessagesScreen(
                                 chatId = chatId,
                                 sender = usuario,
                                 text = messageText,
+                                nombreDelUsuario = usuario,
                                 onSuccess = {},
                                 onError = {}
                             )
@@ -211,6 +212,7 @@ fun MessagesScreen(
                             chatId = chatId,
                             sender = usuario,
                             text = messageText,
+                            nombreDelUsuario = usuario,
                             onSuccess = {},
                             onError = {}
                         )
@@ -233,6 +235,7 @@ fun MessagesScreen(
                             viewModel.sendImage(
                                 chatId = chatId,
                                 sender = usuario,
+                                senderName = usuario,
                                 imageFile = file,
                                 onSuccess = { showPreview = false },
                                 onError = { showPreview = false }
@@ -280,7 +283,6 @@ private fun MessageBubble(message: Message, isMine: Boolean) {
                 .background(bubbleColor, shape = RoundedCornerShape(8.dp))
                 .padding(8.dp)
         ) {
-            // Mostrar imagen o texto según el tipo
             if (message.type == "Imagen") {
                 Image(
                     painter = rememberAsyncImagePainter(message.data),

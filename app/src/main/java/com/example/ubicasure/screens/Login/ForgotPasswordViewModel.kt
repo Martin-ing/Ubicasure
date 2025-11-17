@@ -9,29 +9,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class ForgotPasswordViewModel : ViewModel() {
-    private val auth: FirebaseAuth = Firebase.auth // Instancia de FirebaseAuth para manejar autenticación
+    private val auth: FirebaseAuth = Firebase.auth
 
-    private val _email = MutableStateFlow("") // Estado mutable para almacenar el email ingresado
-    val email: StateFlow<String> = _email.asStateFlow(); // Exposición como StateFlow inmutable para UI
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow();
 
     fun onEmailChange(newEmail: String) {
-        _email.value = newEmail // Actualiza el estado del email cuando el usuario lo modifica
+        _email.value = newEmail
     }
 
     fun sendPasswordReset(
-        onSuccess: () -> Unit, // Callback para cuando se envía correctamente el correo
-        onError: (String) -> Unit // Callback para manejar errores
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
     ) {
         if (email.value.isBlank()) {
-            onError("Ingresa un correo válido.") // Validación básica: no permitir email vacío
+            onError("Ingresa un correo válido.")
         } else {
             auth
-                .sendPasswordResetEmail(email.value) // Enviar correo de restablecimiento vía FirebaseAuth
+                .sendPasswordResetEmail(email.value)
                 .addOnSuccessListener {
-                    onSuccess() // Ejecuta callback de éxito si el correo fue enviado
+                    onSuccess()
                 }
                 .addOnFailureListener {
-                    onError("Error: ${it.message}") // Ejecuta callback de error con mensaje específico
+                    onError("Error: ${it.message}")
                 }
         }
     }

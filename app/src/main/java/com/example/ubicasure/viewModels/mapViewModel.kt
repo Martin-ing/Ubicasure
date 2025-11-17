@@ -1,7 +1,9 @@
 package com.example.ubicasure.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.ubicasure.models.Station
 import com.example.ubicasure.models.StationsResponse
 import com.google.android.gms.maps.model.LatLng
@@ -111,9 +113,9 @@ class MapViewModel : ViewModel() {
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    println("✅ Alerta enviada correctamente")
+                    println("Alerta enviada correctamente")
                 } else {
-                    println("⚠️ Error al enviar alerta: ${response.code}")
+                    println("Error al enviar alerta: ${response.code}")
                 }
             }
         })
@@ -122,16 +124,43 @@ class MapViewModel : ViewModel() {
     fun createChat(
         sender: String,
         receiver: String,
+        navController: NavController,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                chatApi.createChat(ChatRequest(sender, receiver))
-                onSuccess()
+                val exists = getChatIfExists(sender, receiver)
+
+                if (!exists) {
+                    chatApi.createChat(ChatRequest(sender, receiver))
+                    onSuccess()
+                }
+
             } catch (e: Exception) {
                 onError(e.message ?: "Error al crear chat")
             }
+            navController.navigate("chat")
         }
     }
+
+    suspend fun getChatIfExists(user1: String, user2: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val url =
+                "https://ubicasure-back-402661808663.us-central1.run.app/chats/getByBothUsers/$user1/$user2"
+
+            val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+
+            val response = client.newCall(request).execute()
+            return@withContext when (response.code) {
+                200 -> true
+                404 -> false
+                else -> false
+            }
+        }
+    }
+
 }

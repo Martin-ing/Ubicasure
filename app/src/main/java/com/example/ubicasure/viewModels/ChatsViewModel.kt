@@ -44,11 +44,21 @@ class ChatViewModel : ViewModel() {
                 _error.value = null
                 val response = api.getChatsByUsername(username)
                 _chats.value = response
+
+            } catch (e: retrofit2.HttpException) {
+                if (e.code() == 404) {
+                    _chats.value = emptyList()
+                    _error.value = null
+                } else {
+                    _error.value = "Error al cargar chats: ${e.message}"
+                }
             } catch (e: Exception) {
                 _error.value = "Error al cargar chats: ${e.message}"
+
             } finally {
                 _loading.value = false
             }
         }
     }
+
 }

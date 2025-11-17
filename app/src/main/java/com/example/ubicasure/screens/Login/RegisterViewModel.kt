@@ -20,31 +20,18 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 
-/**
- * ViewModel para el proceso de registro en dos etapas:
- * 1) Crear cuenta en FirebaseAuth usando email y password.
- * 2) Enviar datos adicionales (nombre, especialidades, descripción, currículum e imagen) a la API.
- */
 class RegisterViewModel : ViewModel() {
-    // Paso actual en el proceso de registro (1 o 2)
     var paso by mutableStateOf(1)
-
-    // Datos básicos para crear cuenta
     var email by mutableStateOf("")
     var password by mutableStateOf("")
-
-    // Datos de perfil a completar después de crear cuenta
     var name by mutableStateOf("")
     var phone by mutableStateOf("")
-
-    // URI seleccionada par imagen de perfil
     var imagenUri by mutableStateOf<Uri?>(null)
 
     var date by mutableStateOf("")
     var btype by mutableStateOf("")
     var idToken: String? by mutableStateOf("")
 
-    // Instancia de FirebaseAuth para manejar registro de usuario
     private val auth: FirebaseAuth = Firebase.auth
 
     fun signUpAuth(onSuccess: () -> Unit, onError: (String) -> Unit) {

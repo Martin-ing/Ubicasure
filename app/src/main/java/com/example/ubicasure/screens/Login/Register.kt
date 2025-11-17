@@ -29,20 +29,15 @@ import androidx.compose.runtime.*
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
-/**
- * Pantalla de registro de usuario en dos pasos:
- * 1. Crear cuenta con correo y contraseña.
- * 2. Completar datos de perfil (nombre, especialidades, descripción, currículum y foto).
- */
+
 @Composable
 fun RegisterScreen(
     navController: NavController,
     viewModel: RegisterViewModel = viewModel()
 ) {
-    // Contexto para mostrar Toasts y acceder a lanzadores de ActivityResult
+
     val context = LocalContext.current
 
-    // Lanzador para seleccionar una imagen (foto de perfil)
     val imagePicker = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { viewModel.imagenUri = it }
@@ -77,7 +72,7 @@ fun RegisterScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Paso 1: crear cuenta con email y contraseña
+
         if (viewModel.paso == 1) {
             OutlinedTextField(
                 value = viewModel.email,
@@ -96,13 +91,11 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    // Validar campos vacíos antes de llamar al ViewModel
                     if (viewModel.email.isBlank() || viewModel.password.isBlank()) {
                         Toast.makeText(context, "Debes ingresar correo y contraseña", Toast.LENGTH_LONG).show()
                     } else {
                         viewModel.signUpAuth(
                             onSuccess = {
-                                // Avanza al paso 2 si el registro fue exitoso
                                 viewModel.paso = 2
                             },
                             onError = { errorMsg ->
@@ -116,7 +109,6 @@ fun RegisterScreen(
                 Text("Registrarse")
             }
 
-            // Paso 2: completar perfil con nombre, especialidades, descripción, PDF y foto
         } else {
             OutlinedTextField(
                 value = viewModel.name,
@@ -198,7 +190,7 @@ fun RegisterScreen(
                         DropdownMenuItem(
                             text = { Text(tipo) },
                             onClick = {
-                                viewModel.btype = tipo // guardar la selección
+                                viewModel.btype = tipo
                                 expandedEsp = false
                             }
                         )
@@ -207,7 +199,6 @@ fun RegisterScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            // Botón para lanzar selector de imagen; texto cambia si ya hay una imagen seleccionada
             Button(
                 onClick = { imagePicker.launch("image/*") },
                 modifier = Modifier.fillMaxWidth(0.9f)
@@ -234,15 +225,12 @@ fun RegisterScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            // Botón final para enviar todos los datos de registro al ViewModel
             Button(
                 onClick = {
-                    // Llamar a la nueva función en el ViewModel
                     viewModel.registerUserProfile(
                         context,
                         onSuccess = {
                             Toast.makeText(context, "¡Registro completado!", Toast.LENGTH_LONG).show()
-                            // Navegar a la pantalla de login o a la principal después del éxito
                             navController.navigate("login") {
                                 popUpTo("register") { inclusive = true }
                             }

@@ -9,14 +9,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-/**
- * Pantalla de inicio de sesión.
- *
- * @param viewModel              ViewModel encargado de la autenticación.
- * @param onLoginSuccess         Callback que se invoca cuando el login es exitoso.
- * @param onNavigateToRegister   Callback para navegar a la pantalla de registro.
- * @param onNavigateToForgotPassword Callback para navegar a la pantalla de recuperación de contraseña.
- */
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
@@ -24,14 +16,11 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit
 ) {
-    // Contexto para mostrar Toasts
     val context = LocalContext.current
 
-    // Estados locales para los campos de correo y contraseña
     var email    by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // Inicializar contexto en el ViewModel (por ejemplo, para FirebaseAuth)
     LaunchedEffect(Unit) {
         viewModel.setContext(context)
     }
@@ -42,7 +31,7 @@ fun LoginScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        // Campo de texto para ingresar el correo electrónico
+
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -52,7 +41,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo de texto para ingresar la contraseña
+
         TextField(
             value = password,
             onValueChange = { password = it },
@@ -62,20 +51,16 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botón para iniciar sesión
         Button(
             onClick = {
-                // Validar que no haya campos vacíos
                 if (email.isBlank() || password.isBlank()) {
                     Toast.makeText(context, "Debes completar ambos campos", Toast.LENGTH_LONG).show()
                 } else {
-                    // Invocar función del ViewModel para autenticar
                     viewModel.signInAuth(
                         email,
                         password,
                         onSuccess = { onLoginSuccess() },
                         onError = { errorMsg ->
-                            // Mostrar mensaje de error en un Toast
                             Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
                         }
                     )
@@ -88,7 +73,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Botón para navegar a la pantalla de registro
         Button(
             onClick = onNavigateToRegister,
             modifier = Modifier.fillMaxWidth()
@@ -98,7 +82,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Texto clicable para recuperar contraseña
         TextButton(onClick = onNavigateToForgotPassword) {
             Text("Olvidé mi contraseña")
         }

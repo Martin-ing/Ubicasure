@@ -3,7 +3,10 @@ package com.example.ubicasure.models
 data class Station(
     val name: String,
     val address: String,
-    val location: Location
+    val location: Location,
+    val type: String,
+    val phone: String?,
+    val opening_hours: List<String>?
 )
 
 data class Location(

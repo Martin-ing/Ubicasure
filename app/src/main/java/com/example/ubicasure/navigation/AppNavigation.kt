@@ -28,12 +28,11 @@ fun AppNavigation(
         startDestination = startDestination
     ) {
 
-        // ======== LOGIN FLOW ========
         composable("login") {
             LoginScreen(
                 viewModel,
                 onLoginSuccess = {
-                    // Cuando se loguea correctamente, vamos al mapa
+
                     navController.navigate("map") {
                         popUpTo("login") { inclusive = true }
                     }

@@ -18,10 +18,10 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
-
 data class Message(
     val id: String = "",
     val sender: String = "",
+    val senderName: String = "",
     val data: String = "",
     val chatId: String = "",
     val timestamp: String = "",
@@ -46,6 +46,7 @@ interface MessagesApiService {
         @Part image: MultipartBody.Part,
         @Part("chatId") chatId: RequestBody,
         @Part("sender") sender: RequestBody,
+        @Part("senderName") senderName: RequestBody,
         @Part("type") type: RequestBody,
         @Part("position") position: RequestBody
     ): MessageResponse
@@ -54,6 +55,7 @@ interface MessagesApiService {
 data class MessageRequest(
     val chatId: String,
     val sender: String,
+    val senderName: String,
     val type: String = "Texto",
     val position: String = "right",
     val data: String
@@ -110,7 +112,7 @@ class MessagesViewModel : ViewModel() {
                 val newMessages = snapshot.documents.mapNotNull { doc ->
                     doc.toObject(Message::class.java)?.copy(id = doc.id)
                 }
-                _messages.value = newMessages // Actualiza el StateFlow
+                _messages.value = newMessages
             }
         }
     }
@@ -123,13 +125,14 @@ class MessagesViewModel : ViewModel() {
     fun sendMessage(
         chatId: String,
         sender: String,
+        nombreDelUsuario: String,
         text: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                val request = MessageRequest(chatId = chatId, sender = sender, data = text)
+                val request = MessageRequest(chatId = chatId, sender = sender, senderName = nombreDelUsuario, data = text)
                 val response = api.sendMessage(request)
                 if (response.success) onSuccess() else onError(response.message)
             } catch (e: Exception) {
@@ -152,13 +155,13 @@ class MessagesViewModel : ViewModel() {
     fun sendImage(
         chatId: String,
         sender: String,
+        senderName: String,
         imageFile: File,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                // Convertir imagen a MultipartBody
                 val requestImageFile = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
                 val multipartImage = MultipartBody.Part.createFormData(
                     name = "data",
@@ -170,11 +173,13 @@ class MessagesViewModel : ViewModel() {
                 val senderBody = sender.toRequestBody("text/plain".toMediaTypeOrNull())
                 val typeBody = "Imagen".toRequestBody("text/plain".toMediaTypeOrNull())
                 val positionBody = "right".toRequestBody("text/plain".toMediaTypeOrNull())
+                val senderNameBody = senderName.toRequestBody("text/plain".toMediaTypeOrNull())
 
                 val response = api.sendImageMessage(
                     multipartImage,
                     chatIdBody,
                     senderBody,
+                    senderNameBody,
                     typeBody,
                     positionBody
                 )

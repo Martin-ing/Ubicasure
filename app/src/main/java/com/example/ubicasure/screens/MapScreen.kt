@@ -67,7 +67,6 @@ fun MapScreen(navController: NavController, usuario: String, signOut: () -> Unit
         }
     }
 
-    // Si el permiso está concedido, obtenemos la ubicación y cargamos estaciones
     LaunchedEffect(locationPermissionState.status.isGranted) {
         if (locationPermissionState.status.isGranted) {
             loginViewModel.setContext(context)
@@ -103,18 +102,44 @@ fun MapScreen(navController: NavController, usuario: String, signOut: () -> Unit
                     BitmapDescriptorFactory.fromBitmap(scaledBitmap)
                 }
 
-                estaciones.forEach { estacion ->
-                    Marker(
-                        state = MarkerState(LatLng(estacion.location.lat, estacion.location.lng)),
-                        title = estacion.name,
-                        snippet = estacion.address,
-                        icon = markerIcon,
-                        onClick = {
-                            selectedStation = estacion
-                            showDialog = true
-                            true
-                        }
+                val markerIconf = remember {
+                    val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.police_station)
+                    val scaledBitmap = Bitmap.createScaledBitmap(
+                        bitmap,
+                        (bitmap.width * 0.4f).toInt(),
+                        (bitmap.height * 0.4f).toInt(),
+                        false
                     )
+                    BitmapDescriptorFactory.fromBitmap(scaledBitmap)
+                }
+
+                estaciones.forEach { estacion ->
+                    if(estacion.type == "police"){
+                        Marker(
+                            state = MarkerState(LatLng(estacion.location.lat, estacion.location.lng)),
+                            title = estacion.name,
+                            snippet = estacion.address,
+                            icon = markerIcon,
+                            onClick = {
+                                selectedStation = estacion
+                                showDialog = true
+                                true
+                            }
+                        )
+                    }
+                    else {
+                        Marker(
+                            state = MarkerState(LatLng(estacion.location.lat, estacion.location.lng)),
+                            title = estacion.name,
+                            snippet = estacion.address,
+                            icon = markerIconf,
+                            onClick = {
+                                selectedStation = estacion
+                                showDialog = true
+                                true
+                            }
+                        )
+                    }
                 }
             }
         } else {
@@ -199,7 +224,6 @@ fun MapScreen(navController: NavController, usuario: String, signOut: () -> Unit
             }
         }
 
-        // Botón enviar alerta
         Button(
             onClick = { showDialogAlert = true },
             modifier = Modifier
@@ -220,27 +244,46 @@ fun MapScreen(navController: NavController, usuario: String, signOut: () -> Unit
             )
         }
 
-        // Diálogos
         if (showDialog && selectedStation != null) {
+            val station = selectedStation!!
+
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text(selectedStation!!.name, fontWeight = FontWeight.Bold) },
-                text = { Text("Dirección: ${selectedStation!!.address}") },
-                confirmButton = {
-                    Button(onClick = {
-                        viewModel.createChat(
-                            sender = usuario,
-                            receiver = selectedStation!!.name,
-                            onSuccess = {
-                                showDialog = false
-                                println("Chat creado correctamente con ${selectedStation!!.name}")
-                            },
-                            onError = { error ->
-                                showDialog = false
-                                println("Error al crear chat: $error")
+                title = { Text(station.name, fontWeight = FontWeight.Bold) },
+                text = {
+                    Column {
+                        Text("Dirección: ${station.address}")
+
+                        station.phone?.takeIf { it.isNotBlank() }?.let {
+                            Text("Teléfono: $it")
+                        }
+
+                        station.opening_hours?.takeIf { it.isNotEmpty() }?.let { hours ->
+                            Text("Horario:")
+                            hours.forEach { hora ->
+                                Text("- $hora")
                             }
-                        )
-                    }) {
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.createChat(
+                                sender = usuario,
+                                receiver = station.name,
+                                navController = navController,
+                                onSuccess = {
+                                    showDialog = false
+                                    println("Chat creado correctamente con ${station.name}")
+                                },
+                                onError = { error ->
+                                    showDialog = false
+                                    println("Error al crear chat: $error")
+                                }
+                            )
+                        }
+                    ) {
                         Text("Iniciar chat")
                     }
                 },
@@ -251,6 +294,7 @@ fun MapScreen(navController: NavController, usuario: String, signOut: () -> Unit
                 }
             )
         }
+
 
         if (showDialogAlert) {
             AlertDialog(

@@ -1,18 +1,24 @@
 package com.example.ubicasure.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel as composeViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.ubicasure.screens.Login.LoginScreen
-import com.example.ubicasure.screens.Login.RegisterScreen
-import com.example.ubicasure.screens.Login.ForgotPasswordScreen
-import com.example.ubicasure.screens.Login.LoginViewModel
-import com.example.ubicasure.screens.MapScreen
 import com.example.ubicasure.screens.ChatScreen
+import com.example.ubicasure.screens.EditProfileScreen
+import com.example.ubicasure.screens.EmergencyContactsScreen
+import com.example.ubicasure.screens.Login.ForgotPasswordScreen
+import com.example.ubicasure.screens.Login.LoginScreen
+import com.example.ubicasure.screens.Login.LoginViewModel
+import com.example.ubicasure.screens.Login.RegisterScreen
+import com.example.ubicasure.screens.MapScreen
 import com.example.ubicasure.screens.MessagesScreen
+import com.example.ubicasure.screens.SettingsScreen
+import com.example.ubicasure.viewModels.SettingsViewModel
 
 @Composable
 fun AppNavigation(
@@ -22,6 +28,7 @@ fun AppNavigation(
     signOut: () -> Unit
 ) {
     val startDestination = if (usuario == "sin usuario") "login" else "map"
+    val settingsViewModel: SettingsViewModel = composeViewModel()
 
     NavHost(
         navController = navController,
@@ -32,7 +39,6 @@ fun AppNavigation(
             LoginScreen(
                 viewModel,
                 onLoginSuccess = {
-
                     navController.navigate("map") {
                         popUpTo("login") { inclusive = true }
                     }
@@ -55,7 +61,30 @@ fun AppNavigation(
         }
 
         composable("map") {
-            MapScreen(navController, usuario, signOut)
+            MapScreen(
+                navController = navController,
+                usuario = usuario,
+                settingsViewModel = settingsViewModel
+            )
+        }
+
+        composable("settings") {
+            SettingsScreen(
+                navController = navController,
+                settingsViewModel = settingsViewModel,
+                signOut = signOut
+            )
+        }
+
+        composable("emergencyContacts") {
+            EmergencyContactsScreen(navController = navController)
+        }
+
+        composable("editProfile") {
+            EditProfileScreen(
+                navController = navController,
+                loginViewModel = viewModel
+            )
         }
 
         composable("chat") {
@@ -71,9 +100,16 @@ fun AppNavigation(
         ) { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
             val usuarioArg = backStackEntry.arguments?.getString("usuario") ?: ""
+            val userProfile = viewModel.userProfile.collectAsState().value
+            val senderName = userProfile
+                ?.fullName
+                ?.takeIf { it.isNotBlank() }
+                ?: usuarioArg
+
             MessagesScreen(
                 chatId = chatId,
                 usuario = usuarioArg,
+                senderName = senderName,
                 onBack = { navController.popBackStack() }
             )
         }

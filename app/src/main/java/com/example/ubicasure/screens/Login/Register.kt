@@ -27,6 +27,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import java.util.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 
@@ -68,6 +70,7 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -121,9 +124,23 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = viewModel.phone,
                 onValueChange = { viewModel.phone = it },
-                label = { Text("Télefono") },
+                label = { Text("Teléfono") },
                 modifier = Modifier.fillMaxWidth(0.9f),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = viewModel.telegramUsername,
+                onValueChange = { viewModel.telegramUsername = it },
+                label = { Text("Usuario de Telegram (opcional)") },
+                placeholder = { Text("@usuario") },
+                modifier = Modifier.fillMaxWidth(0.9f),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                ),
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -211,8 +228,6 @@ fun RegisterScreen(
                 )
             }
 
-
-            // Vista previa de la imagen de perfil si ya fue seleccionada
             viewModel.imagenUri?.let {
                 Spacer(modifier = Modifier.height(8.dp))
                 Image(

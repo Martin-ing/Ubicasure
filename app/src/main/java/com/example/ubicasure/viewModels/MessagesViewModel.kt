@@ -32,13 +32,19 @@ data class Message(
 interface MessagesApiService {
 
     @GET("messages/getByChat/{chatId}")
-    suspend fun getMessagesByChat(@Path("chatId") chatId: String): List<Message>
+    suspend fun getMessagesByChat(
+        @Path("chatId") chatId: String
+    ): List<Message>
 
     @POST("messages/")
-    suspend fun sendMessage(@Body body: MessageRequest): MessageResponse
+    suspend fun sendMessage(
+        @Body body: MessageRequest
+    ): Message
 
     @DELETE("chats/{chatId}")
-    suspend fun deleteChat(@Path("chatId") chatId: String): DeleteResponse
+    suspend fun deleteChat(
+        @Path("chatId") chatId: String
+    ): DeleteResponse
 
     @Multipart
     @POST("messages/")
@@ -49,7 +55,7 @@ interface MessagesApiService {
         @Part("senderName") senderName: RequestBody,
         @Part("type") type: RequestBody,
         @Part("position") position: RequestBody
-    ): MessageResponse
+    ): Message
 }
 
 data class MessageRequest(
@@ -59,11 +65,6 @@ data class MessageRequest(
     val type: String = "Texto",
     val position: String = "right",
     val data: String
-)
-
-data class MessageResponse(
-    val success: Boolean,
-    val message: String
 )
 
 data class DeleteResponse(
@@ -125,16 +126,25 @@ class MessagesViewModel : ViewModel() {
     fun sendMessage(
         chatId: String,
         sender: String,
-        nombreDelUsuario: String,
+        senderName: String,
         text: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                val request = MessageRequest(chatId = chatId, sender = sender, senderName = nombreDelUsuario, data = text)
-                val response = api.sendMessage(request)
-                if (response.success) onSuccess() else onError(response.message)
+
+                val request = MessageRequest(
+                    chatId = chatId,
+                    sender = sender,
+                    senderName = senderName,
+                    data = text
+                )
+
+                api.sendMessage(request)
+
+                onSuccess()
+
             } catch (e: Exception) {
                 onError(e.message ?: "Error al enviar mensaje")
             }
@@ -175,7 +185,7 @@ class MessagesViewModel : ViewModel() {
                 val positionBody = "right".toRequestBody("text/plain".toMediaTypeOrNull())
                 val senderNameBody = senderName.toRequestBody("text/plain".toMediaTypeOrNull())
 
-                val response = api.sendImageMessage(
+                api.sendImageMessage(
                     multipartImage,
                     chatIdBody,
                     senderBody,
@@ -184,11 +194,7 @@ class MessagesViewModel : ViewModel() {
                     positionBody
                 )
 
-                if (response.success) {
-                    onSuccess()
-                } else {
-                    onError(response.message)
-                }
+                onSuccess()
 
             } catch (e: Exception) {
                 onError(e.message ?: "Error al enviar imagen")
